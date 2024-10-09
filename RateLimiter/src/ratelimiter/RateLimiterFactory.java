@@ -1,11 +1,18 @@
 package ratelimiter;
 
+import java.util.*;
+
+enum Config{
+	capacity,
+	refillRatePerSecond,
+	windowSizeInSeconds
+}
 public class RateLimiterFactory {
 	
-	public IRateLimiter createRateLimiter(RateLimiterType type,int maxRequestsAllowed,long windowSize) {
+	public IRateLimiter createRateLimiter(RateLimiterType type,Map<Config,Object> config) {
 		switch (type) {
-		case RateLimiterType.SlidingWindow: {
-			return new SlidingWindowRateLimiter(maxRequestsAllowed, windowSize);	
+		case SlidingWindow: {
+			return new SlidingWindowRateLimiter((int)config.get(Config.capacity), (int)(config.get(Config.windowSizeInSeconds)));	
 		}
 		default:
 			throw new IllegalArgumentException("Unexpected value: " + type);

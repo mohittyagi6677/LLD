@@ -3,19 +3,19 @@ import java.util.*;
 
 public class SlidingWindowRateLimiter implements IRateLimiter{
 	Queue<Long> timeStamps ;
-	int maxRequestsAllowed;
-	long windowSize;
-	
+	int capacity;
+	int windowSizeInSeconds;
+	// follow up question with credits
 	int availableCredits;
 	int maxCreditsAllowed;
 	long lastResetTime;
 	
-	public SlidingWindowRateLimiter(int maxRequestsAllowed,long windowSize) {
+	public SlidingWindowRateLimiter(int maxRequestsAllowed,int windowSizeInSeconds) {
 		timeStamps=new LinkedList<Long>();
-		this.maxRequestsAllowed=maxRequestsAllowed;
-		this.windowSize=windowSize;
+		this.capacity=maxRequestsAllowed;
+		this.windowSizeInSeconds=windowSizeInSeconds;
 		
-		
+		// follow up solution to add credits as per unutilized rate limit
 		this.lastResetTime=System.currentTimeMillis();
 		this.availableCredits=0;
 		this.maxCreditsAllowed=2*maxRequestsAllowed;
@@ -28,20 +28,18 @@ public class SlidingWindowRateLimiter implements IRateLimiter{
 		
 		
 		long timeElapsed=now-this.lastResetTime;
-		if(timeElapsed>windowSize) {
-			int totalWindows = (int) (timeElapsed/windowSize);
-			int totalRequestAllowedWithBuffer = (totalWindows*maxRequestsAllowed);
+		if(timeElapsed>getWindowSizeInMilliSeconds()) {
+			int totalWindows = (int) (timeElapsed/getWindowSizeInMilliSeconds());
+			int totalRequestAllowedWithBuffer = (totalWindows*capacity);
 			int newCredits = totalRequestAllowedWithBuffer-timeStamps.size();
 			this.availableCredits+=newCredits;
 			this.availableCredits=Math.min(this.availableCredits, this.maxCreditsAllowed);
-			this.lastResetTime=now;
-			
-			
+			this.lastResetTime=now;	
 		}
-		while(!timeStamps.isEmpty() && now-timeStamps.peek()>=windowSize) {
+		while(!timeStamps.isEmpty() && now-timeStamps.peek()>=getWindowSizeInMilliSeconds()) {
 			timeStamps.poll();
 		}
-		if(timeStamps.size()<maxRequestsAllowed) {
+		if(timeStamps.size()<capacity) {
 			timeStamps.add(now);
 			System.out.println("Allowing the request for user:"+userId);
 			return true;
@@ -53,6 +51,10 @@ public class SlidingWindowRateLimiter implements IRateLimiter{
 		}
 		System.out.println("Rejecting the request for user:"+userId);
 		return false;
+	}
+
+	private long getWindowSizeInMilliSeconds() {
+		return (long)windowSizeInSeconds*1000;
 	}
 
 }

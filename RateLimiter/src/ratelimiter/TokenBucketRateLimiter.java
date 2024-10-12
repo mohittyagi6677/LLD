@@ -1,6 +1,6 @@
 package ratelimiter;
 
-public class TokenBucketRateLimiter {
+public class TokenBucketRateLimiter implements IRateLimiter{
         
         private int capacity;
         private int tokens;

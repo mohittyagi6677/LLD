@@ -7,7 +7,6 @@ enum RateLimiterType{
 	FixedCounter
 }
 public class RateLimiterManager {
-	private IRateLimiter defaultRateLimiter ;
 	private Map<String,IRateLimiter> rateLimiterMap;
 	private RateLimiterFactory rateLimiterFactory;
 	private final Map<Config,Object> defaultConfig = new HashMap<Config,Object>();
@@ -16,8 +15,7 @@ public class RateLimiterManager {
 		rateLimiterMap = new ConcurrentHashMap<>();
 		rateLimiterFactory = new RateLimiterFactory();
 		defaultConfig.put(Config.capacity, 5);
-		defaultConfig.put(Config.windowSizeInSeconds, 5000);
-		defaultRateLimiter = rateLimiterFactory.createRateLimiter(RateLimiterType.SlidingWindow, defaultConfig);
+		defaultConfig.put(Config.windowSizeInSeconds, 5);
 	}
 	
 	public void addRateLimiterForUser(String userId,RateLimiterType type,int maxRequestsAllowed,int windowSize) {
@@ -28,7 +26,7 @@ public class RateLimiterManager {
 	}
 	
 	public boolean isRequestAllowed(String userId) {
-		return rateLimiterMap.getOrDefault(userId, defaultRateLimiter).isRequestAllowed(userId);
+		return rateLimiterMap.getOrDefault(userId, rateLimiterFactory.createRateLimiter(RateLimiterType.SlidingWindow, defaultConfig)).isRequestAllowed(userId);
 	}
 
 }

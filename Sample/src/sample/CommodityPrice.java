@@ -48,10 +48,28 @@ public class CommodPrice {
         return priceToCountMap.firstKey();
     }
 
-    public int getPrice(int timeStamp,int version){
+    public Integer getPrice(int timeStamp,int version){
         List<ValueWithVersion> valuesWithVersion = timeStampToVersionMap.get(timeStamp);
-        // binary search in the last with floor value of version
+        Comparator<ValueWithVersion> versionComparator = new Comparator<CommPrice.ValueWithVersion>() {
 
+            @Override
+            public int compare(ValueWithVersion o1, ValueWithVersion o2) {
+                return o1.version-o2.version;
+            }
+            
+        };
+        int index = Collections.binarySearch(valuesWithVersion, new ValueWithVersion(-1, version),versionComparator);
+        if(index>=0){
+            return valuesWithVersion.get(index).value;
+        } else {
+            int idealIndex = Math.abs(index+1);
+            idealIndex--;
+            if(idealIndex>=0){
+                return valuesWithVersion.get(idealIndex).value;
+            } else {
+                return null;
+            }
+        }
     }
 
 }

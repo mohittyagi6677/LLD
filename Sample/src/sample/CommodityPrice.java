@@ -16,7 +16,7 @@ public class CommodPrice {
 
 
 
-    public void updatePrice(int timeStamp,int price){
+    public int updatePrice(int timeStamp,int price){
         Integer existingPrice = timeStampToPrice.get(timeStamp);
         if(existingPrice!=null){
             priceToCountMap.put(existingPrice,priceToCountMap.get(priceToCountMap)-1);
